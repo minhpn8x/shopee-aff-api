@@ -3,7 +3,31 @@ import type { ConversionReportsRoute, ConvertLinkRoute } from './affiliate.route
 
 // 1. Handler: Convert Link Affiliate (Hỗ trợ tối đa 5 link & advancedLinkParams subId1 -> subId5)
 export const convertLinkHandler: AppRouteHandler<ConvertLinkRoute> = async (c) => {
-  const { shopeeCookies, originalLink, subId1, subId2, subId3, subId4, subId5 } = c.req.valid('json')
+const {
+  shopeeCookies,
+  originalLink,
+  subId1,
+  subId2,
+  subId3,
+  subId4,
+  subId5,
+} = c.req.valid('json')
+
+const effectiveShopeeCookie =
+  String(c.env?.SHOPEE_COOKIE || shopeeCookies || '').trim()
+
+if (!effectiveShopeeCookie) {
+  return c.json(
+    {
+      success: false,
+      error: {
+        code: 'MISSING_SHOPEE_COOKIE',
+        message: 'Chưa cấu hình SHOPEE_COOKIE Secret trên Cloudflare',
+      },
+    },
+    400,
+  )
+}
   const shopeeBaseApi = c.env?.SHOPEE_BASE_API || 'https://affiliate.shopee.vn/api/v3'
 
   // Chuẩn hóa endpoint
@@ -49,7 +73,7 @@ export const convertLinkHandler: AppRouteHandler<ConvertLinkRoute> = async (c) =
       'sec-fetch-dest': 'empty',
       'sec-fetch-site': 'same-origin',
       'sec-ch-ua': '"Google Chrome";v="149", "Chromium";v="149", "Not)A;Brand";v="24"',
-      cookie: shopeeCookies,
+      cookie: effectiveShopeeCookie,
     },
     body: JSON.stringify(payload),
   })
