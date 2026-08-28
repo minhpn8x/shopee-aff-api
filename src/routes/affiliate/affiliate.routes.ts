@@ -7,10 +7,10 @@ export const ConvertLinkBodySchema = z
   .object({
     shopeeCookies: z
       .string()
-      .min(1, 'shopeeCookies là bắt buộc để xác thực Shopee Affiliate')
+      .optional()
       .openapi({
         example: '',
-        description: '🔴 [BẮT BUỘC] Cookie từ tài khoản Shopee Affiliate',
+        description: '🟢 [TÙY CHỌN] Nếu bỏ trống sẽ dùng SHOPEE_COOKIE Secret trên Cloudflare',
       }),
     originalLink: z
       .array(
